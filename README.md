@@ -3,8 +3,8 @@ It works for a list of events, which are assumed to be named such as:
 
 ```text
 
-GWdate/
-├── GWdate_l1.h5    <- Event directory
+GWdate/             <- Event directory
+├── GWdate_l1.h5   
 ├── GWdate_h1.h5    <- Event interferometer data
 ├── GWdate_v1.h5
 └── GWdate.h5       <- Zenodo file
