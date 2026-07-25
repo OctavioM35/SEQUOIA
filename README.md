@@ -1,4 +1,4 @@
-An algorithm which uses the neuronal network DANSur for estimate GW signals parameters and plots the distributions obtained alongside with the results from Zenodo. 
+An algorithm which can use the neuronal network DANSur or IMR approximant to estimate GW signals parameters and plots the distributions obtained alongside with the results from Zenodo. 
 It works for a list of events, which are assumed to be named such as:
 
 ```text
