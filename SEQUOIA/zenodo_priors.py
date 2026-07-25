@@ -1,14 +1,16 @@
 import h5py
 import bilby
 from bilby.gw.prior import Uniform, Constraint, UniformInComponentsChirpMass, UniformInComponentsMassRatio
-
+import numpy as np
 
 
 def load_zenodo_priors(zenodo_file):
 
     with h5py.File(zenodo_file, "r") as f:
         key0 = list(f.keys())[0]
-            
+        posterior = f[key0]['posterior_samples']
+
+        # print(f[key0]["config_file"][()])
         try:
                 geocent_time_prior = f[key0]['priors']['analytic']['geocent_time'][:][0]
                 print('Prior: geocent')
@@ -22,11 +24,13 @@ def load_zenodo_priors(zenodo_file):
                     except:
                         return None, None
         priors = bilby.gw.prior.BBHPriorDict(aligned_spin=True)
-        priors['geocent_time'] = eval(geocent_time_prior)
+        priors['geocent_time'] = eval(geocent_time_prior) 
+        
         mass_prior = f[key0]['priors']['analytic']['chirp_mass'][:][0]
         mass_prior2 = f[key0]['priors']['analytic']['mass_ratio'][:][0]
 
 
+    
 
     priors['luminosity_distance']=bilby.gw.prior.UniformSourceFrame(minimum=100.0, maximum=13000, 
         cosmology='Planck15', name='luminosity_distance', latex_label='$d_L$', unit='Mpc', 

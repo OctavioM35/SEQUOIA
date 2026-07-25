@@ -10,9 +10,9 @@ import h5py
 
 
 def plot_manual_corner(folder, zenodo_file, event_dir, outdir):
-        bilby_result = os.path.join(outdir, "NNSur_result.json")
+        bilby_result = os.path.join(outdir, "DANSur_result.json")
         #result = bilby.result.read_in_result(filename=bilby_result)
-        OUTPUT_PLOT = os.path.join(outdir, "corner_comparison_NNSur_vs_Zenodo_" + folder + '.png' )
+        OUTPUT_PLOT = os.path.join(outdir, "corner_comparison_DANSur_vs_Zenodo_" + folder + '.png' )
         zenodo_file = os.path.join(event_dir,zenodo_file)
 
         plt.rcParams.update({

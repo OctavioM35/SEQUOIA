@@ -1,14 +1,30 @@
+
 import bilby
 from bilby.gw.likelihood import GravitationalWaveTransient
 from waveform_generator import  waveform_generator
 from matplotlib import pyplot as plt
 import os
 from gwpy.timeseries import TimeSeries
+from approximant_wv_generator import approximant_generator
+import sys
+import h5py
+import numpy as np
 
 
-def run_inference(ifos, duration, sampling_frequency,targ_keys, priors, npoints, outdir,resume):
-    label = "NNSur"
-    generated_waveform = waveform_generator(duration, sampling_frequency,targ_keys)
+def run_inference(ifos, duration, sampling_frequency,targ_keys, priors, npoints, outdir,resume,approximant, zenodo_file):
+
+    if approximant== False:
+        generated_waveform = waveform_generator(duration, sampling_frequency,targ_keys)
+        label = "DANSur"
+
+    elif approximant == True:
+        generated_waveform = approximant_generator(duration, sampling_frequency)
+        label = "IMR"
+
+    else:
+        print('Approximant (in config.py) must either be True or False.')
+        sys.exit(1)
+
 
     likelihood = GravitationalWaveTransient(
         interferometers=ifos,
@@ -22,18 +38,18 @@ def run_inference(ifos, duration, sampling_frequency,targ_keys, priors, npoints,
 
 
     result=bilby.run_sampler(
-            likelihood=likelihood,
-            priors=priors,
-            sampler="nessai",
-            use_ratio=False,
-            flow_class="gwflowproposal",
-            npoints=npoints,
-            resume=resume,
-            outdir=outdir,
-            label=label,
-            npool=1,
-            stopping=1
-        )
+                likelihood=likelihood,
+                priors=priors,
+                sampler="nessai",
+                use_ratio=False,
+                flow_class="gwflowproposal",
+                npoints=npoints,
+                resume=resume,
+                outdir=outdir,
+                label=label,
+                npool=1,
+                stopping=1
+            )
     plt.figure()
     maxll_params = dict(result.posterior[result.posterior.log_likelihood == result.posterior.log_likelihood.max()].iloc[0])
     plt.plot(generated_waveform.time_array, generated_waveform.time_domain_strain(maxll_params)['plus'], '--')

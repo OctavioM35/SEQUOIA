@@ -4,6 +4,7 @@ def load_zenodo(data_folder,folder,event_dir):
         for f in os.listdir(event_dir):
             if f.endswith(folder + ".h5") or f.endswith(folder +".hdf5"):
                 zenodo_file = os.path.join(event_dir, f)
+
                 break
 
         if zenodo_file is None:

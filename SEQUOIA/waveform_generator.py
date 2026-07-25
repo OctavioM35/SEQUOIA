@@ -28,6 +28,7 @@ def my_gen_func(times, **kwargs):
 
     h_plus = np.real(h)
     h_cross = np.imag(h)
+    converted = bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters(kwargs)[0]
 
     return {"plus": h_plus, "cross": h_cross}
 

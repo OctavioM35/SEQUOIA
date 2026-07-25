@@ -5,9 +5,9 @@ from zenodo_priors import load_zenodo_priors
 from load_interferometer import load_ifos
 from run_inference_bilby import run_inference
 from plot_manual_corner import  plot_manual_corner
+from chirp_mass import chirp_mass
 import bilby
-
-
+import numpy as np
 
 def main():
     events_not_supported = []
@@ -30,7 +30,11 @@ def main():
                     print(f"There is no zenodo data on your folder for this event, {folder}")
                     events_not_supported.append((folder, 'Zenodo missing'))
                     continue
-
+                supported_mass = chirp_mass(zenodo_file)
+                if supported_mass == False:
+                      print('DANSur has not been trained for handling this particular event (low mass event)')
+                      events_not_supported.append((folder, 'DANSur does not support'))
+                      continue
 
                 targ_keys ,priors= load_zenodo_priors(zenodo_file)
                 if targ_keys == None and priors == None:
@@ -39,12 +43,17 @@ def main():
                       continue
 
                 ifos = load_ifos(event_dir, folder, sampling_frequency, zenodo_file,duration)
+
+
+
                 if ifos == None:
                      print(f"There is no data on your folder for this event, {folder}")
                      events_not_supported.append((folder, 'Interferometer data missing'))
                      continue
                 
-                run_inference(ifos, duration, sampling_frequency,targ_keys, priors, npoints, outdir, resume)
+
+
+                run_inference(ifos, duration, sampling_frequency,targ_keys, priors, npoints, outdir, resume,approximant, zenodo_file)
                 print('=' *50)
                 print('Plotting results')
                 plot_manual_corner(folder, zenodo_file, event_dir, outdir)
