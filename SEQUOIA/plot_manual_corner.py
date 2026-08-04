@@ -9,10 +9,15 @@ import bilby
 import h5py
 
 
-def plot_manual_corner(folder, zenodo_file, event_dir, outdir):
-        bilby_result = os.path.join(outdir, "DANSur_result.json")
+def plot_manual_corner(folder, zenodo_file, event_dir, outdir,approximant):
+        if approximant == False:
+            bilby_result = os.path.join(outdir, "DANSur_result.json")
+            OUTPUT_PLOT = os.path.join(outdir, "corner_comparison_DANSur_vs_Zenodo_" + folder + '.png' )
+
+        else:
+            bilby_result = os.path.join(outdir, "IMR_result.json")
+            OUTPUT_PLOT = os.path.join(outdir, "corner_comparison_IMR_vs_Zenodo_" + folder + '.png' )
         #result = bilby.result.read_in_result(filename=bilby_result)
-        OUTPUT_PLOT = os.path.join(outdir, "corner_comparison_DANSur_vs_Zenodo_" + folder + '.png' )
         zenodo_file = os.path.join(event_dir,zenodo_file)
 
         plt.rcParams.update({
@@ -222,12 +227,17 @@ def plot_manual_corner(folder, zenodo_file, event_dir, outdir):
                         ax.spines[side].set_linewidth(1.0)
                         ax.spines[side].set_color("0.55")
                         ax.spines[side].set_zorder(20)
+            if approximant == False:
 
-            handles = [
-                mlines.Line2D([], [], color="k", lw=8, label="LVK samples"),
-                mlines.Line2D([], [], color="#1f77b4", lw=8, label="DANSur"),
-            ]
-            
+                handles = [
+                    mlines.Line2D([], [], color="k", lw=8, label="LVK samples"),
+                    mlines.Line2D([], [], color="#1f77b4", lw=8, label="DANSur"),
+                ]
+            else:
+                handles = [
+                    mlines.Line2D([], [], color="k", lw=8, label="LVK samples"),
+                    mlines.Line2D([], [], color="#1f77b4", lw=8, label="IMR"),
+                ]
             fig.legend(handles=handles, loc="upper right", frameon=False, fontsize=20, bbox_to_anchor=(0.8, 0.94))
             fig.suptitle(str(folder), fontsize=24, x=0.4, y=0.99, ha="center")
 
@@ -244,11 +254,11 @@ def plot_manual_corner(folder, zenodo_file, event_dir, outdir):
 
             with h5py.File(zenodo_file, "r") as f:
                 try:
-                    structured = f["C01:Mixed/posterior_samples"][:]
+                    structured = f["C00:SEOBNRv5PHM/posterior_samples"][:]
                 except KeyError:
                     group_name = None
                     for key in f.keys():
-                        if key.startswith("C00:Mixed"):
+                        if key.startswith("C01:Mixed"):
                             group_name = key
                             break
                     structured = f[f"{group_name}/posterior_samples"][:]
@@ -267,6 +277,7 @@ def plot_manual_corner(folder, zenodo_file, event_dir, outdir):
             ]
 
             zenodo_map = {
+                "luminosity_distance" : "luminosity_distance",
                 "chi_1": "spin_1z",
                 "chi_2": "spin_2z",
             }
