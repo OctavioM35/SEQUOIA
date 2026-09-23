@@ -16,9 +16,7 @@ def make_my_gen_func(dicc):
 
     def my_gen_func(times, **kwargs):
         
-        # --------------------------------------------------
-        # Conversión de parámetros
-        # --------------------------------------------------
+
         converted_params = (
             bilby.gw.conversion
             .convert_to_lal_binary_black_hole_parameters(kwargs)[0]
@@ -49,15 +47,11 @@ def make_my_gen_func(dicc):
         domain = np.asarray(domain)
         h = np.asarray(h).squeeze()
 
-        # --------------------------------------------------
-        # Centrar merger en t=0
-        # --------------------------------------------------
+
         domain = domain - domain[-1]
         times_rel = times - times[-1]
 
-        # --------------------------------------------------
-        # Interpolación
-        # --------------------------------------------------
+
         cs_plus = CubicSpline(
             domain,
             h.real,
