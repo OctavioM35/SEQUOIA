@@ -22,18 +22,18 @@ run_particular_event = True
 
 # Event to analyse when run_particular_event = True
 particular_event = "GW200216_220804" 
-                    #GW190910_112807
+
 # ============================================================
 # 3. Inference configuration
 # ============================================================
 
 resume = True          
 
-# Supported surrogates models:            Link to respective papers and/or githubs):
+# Supported surrogates models:            Link to respective papers and/or githubs:
 #   non-precessing:
 #     - DANSur                https://arxiv.org/abs/2412.06946 ; https://github.com/osvaldogramaxo/DANSur_22/
-#     - IMRPhenomXHM
-#     - NRHybSur3dq8          https://github.com/sxs-collaboration/gwsurrogate/blob/master/tutorial/website/NRHybSur2dq15.ipynb
+#     - IMRPhenomXHM          https://arxiv.org/abs/2001.10914
+#     - NRHybSur3dq8          https://arxiv.org/abs/1812.07865
 #   precessing:
 #     - NRSur7dq4             https://arxiv.org/abs/1905.09300
 
@@ -219,9 +219,3 @@ custom_config = {
             else None
         ),
     }
-
-# GW200322_091133: invalid syntax (<unknown>, line 1)
-# GW200308_173609: invalid syntax (<unknown>, line 1)
-# GW200220_124850: invalid syntax (<unknown>, line 1)
-# GW231102_071736: Unable to synchronously open file (truncated file: eof = 235347968, sblock->base_addr = 0, stored_eof = 240925926)
-#  - GW190915_235702: 
