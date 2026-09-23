@@ -1,4 +1,4 @@
-SEQUOIA is a GW parameter estimation algorithm capable of employing the neuronal networks DANSur, NRHybSur3dq8 and NRSur7dq4 and the approximants IMRPhenomXHM and IMRPhenomXO4a to infer GW signals parameters within DANSur's domain of validity and compare the resulting posterior distributions with those published by the LVK Collaboration and available on Zenodo.
+SEQUOIA is a GW parameter estimation algorithm capable of employing the neuronal networks DANSur, NRHybSur3dq8 and NRSur7dq4 and the approximants IMRPhenomXHM and IMRPhenomXO4a to infer GW signals parameters within DANSur's domain of validity and compare the resulting posterior distributions with those published by the LVK Collaboration available on Zenodo.
 The algorithm takes as input the paths to directories containing lists of GW data, which are assumed to follow the following naming convention:
 
 ```text
