@@ -41,8 +41,6 @@ def main():
     total_events = len(folders)
 
     print(f"Found {total_events} event(s)")
-    surrogate_models = ['nrh' , 'nrsur']
-    resultados = ['/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/resultados_nrh', '/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/resultados_nrsur']
    
     for i, folder in enumerate(folders, start=1):
             # if folder in ruido:
