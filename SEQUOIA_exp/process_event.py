@@ -76,13 +76,13 @@ def process_event(folder):
             return "Zenodo file missing."
 
         # ---------------------------------------------------------
-        # 4. Check chirp mass
+        # 4. Check chirp mass 
         # ---------------------------------------------------------
 
         if not chirp_mass(zenodo_file):
 
             print(
-                "This has not been trained for handling "
+                "DANSUr has not been trained for handling "
                 "this particular event "
                 "(low or high mass event). Skipping event..."
             )
@@ -196,7 +196,7 @@ def process_event(folder):
             isinstance(e, ValueError)
             and str(e) == 'f_ref cannot be lower than f_low.'
         ):
-            problem = 'DANSur does not allow f_ref < f_low.'
+            problem = 'This model does not allow f_ref < f_low.'
             print(f"Exception while processing {folder}: This model does not allow f_ref < f_low.")
 
         else:
