@@ -20,9 +20,6 @@ def make_my_gen_func(dicc):
 
     def my_gen_func(times, **kwargs):
 
-        # --------------------------------------------------
-        # Conversión de parámetros
-        # --------------------------------------------------
         converted_params = (
             bilby.gw.conversion
             .convert_to_lal_binary_black_hole_parameters(kwargs)[0]
@@ -30,9 +27,6 @@ def make_my_gen_func(dicc):
 
         out = nnsur_convert(times, **converted_params)
 
-        # --------------------------------------------------
-        # Generar surrogate
-        # --------------------------------------------------
         domain, h, _ = nrh(
             q=out["q"],
             chiA0=[0.0, 0.0, out["chiA0"]],
@@ -50,15 +44,10 @@ def make_my_gen_func(dicc):
         domain = np.asarray(domain)
         h = np.asarray(h).squeeze()
 
-        # --------------------------------------------------
-        # Centrar merger en t=0
-        # --------------------------------------------------
         domain = domain - domain[-1]
         times_rel = times - times[-1]
 
-        # --------------------------------------------------
-        # Interpolación
-        # --------------------------------------------------
+
         cs_plus = CubicSpline(
             domain,
             h.real,
@@ -74,7 +63,6 @@ def make_my_gen_func(dicc):
         h_plus = cs_plus(times_rel)
         h_cross = cs_cross(times_rel)
 
-        # Evitar np.nan_to_num sobre arrays innecesariamente
         h_plus = np.where(np.isfinite(h_plus), h_plus, 0.0)
         h_cross = np.where(np.isfinite(h_cross), h_cross, 0.0)
 
