@@ -1,20 +1,14 @@
 import os
-
-# Forzar a OpenBLAS, MKL y la librería científica de C a usar un solo hilo
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
-
-# 2. Si usas librerías que gestionan hilos por debajo, añadimos este seguro técnico:
 try:
     import threadpoolctl
     threadpoolctl.threadpool_limits(limits=1, user_api='blas')
     threadpoolctl.threadpool_limits(limits=1, user_api='openmp')
-    print("-> Hilos limitados con threadpoolctl con éxito.")
 except ImportError:
-    pass # Si no tienes la librería instalada, no pasa nada
 import bilby
 from bilby.gw.likelihood import GravitationalWaveTransient
 from parameter_estimation_pipeline.dansur_generator.waveform_generator import waveform_generator
@@ -34,8 +28,6 @@ import numpy as np
 # ---------------------------------------------------------
 # 8. Run inference
 # ---------------------------------------------------------
-
-
 
 
 def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
@@ -121,13 +113,11 @@ def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
                 return super().log_likelihood_ratio(parameters)
 
             except Exception as e:
-
                 if "omega_ref" in str(e):
-                    # print("NRSUR: punto fuera del rango de omega_ref -> logL = -inf")
                     return -np.inf
-
-                # No ocultar otros errores
                 raise
+
+    
     t0 = time.perf_counter()
         
     likelihood = NRSURLikelihood(
@@ -139,52 +129,13 @@ def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
         time_marginalization=True,
         jitter_time=False,
 
-        # calibration_marginalization= dicc["marginalization"]["calibration"]
     )
     dt = time.perf_counter() - t0
     print('====' * 30)
     print(f"PID={os.getpid()} | likelihood={dt:.4f} s")
 
-    # _original_log_likelihood = likelihood.log_likelihood
-
-    # def debug_log_likelihood(parameters):
-    #     t0 = time.time()
-
-    #     print("\n>>> Evaluando likelihood...", flush=True)
-
-    #     try:
-    #         logl = _original_log_likelihood(parameters)
-
-    #         elapsed = time.time() - t0
-
-    #         print(
-    #             f">>> logL = {logl} | "
-    #             f"tiempo = {elapsed:.3f} s | "
-    #             f"finite = {np.isfinite(logl)}",
-    #             flush=True
-    #         )
-
-    #         return logl
-
-    #     except Exception as e:
-    #         print(
-    #             f">>> ERROR en likelihood después de {time.time()-t0:.3f} s: "
-    #             f"{type(e).__name__}: {e}",
-    #             flush=True
-    #         )
-    #         raise
-
-    # likelihood.log_likelihood = debug_log_likelihood
-
+ 
     start_time = time.time()
-        # phase_marginalization=dicc["marginalization"]["phase"],
-        # time_marginalization=dicc["marginalization"]["time"],
-        # jitter_time=dicc["marginalization"]["jitter"],
-
-        # distance_marginalization=False,
-        # phase_marginalization=True,
-        # time_marginalization=True,
-        # jitter_time=False,
 
     result=bilby.run_sampler(
                 likelihood=likelihood,
