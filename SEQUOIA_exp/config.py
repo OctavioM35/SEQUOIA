@@ -22,20 +22,19 @@ run_particular_event = True
 
 # Event to analyse when run_particular_event = True
 particular_event = "GW200216_220804" 
-                    #GW190910_112807
 # ============================================================
 # 3. Inference configuration
 # ============================================================
 
 resume =True
 
-# Supported models:            Link to respective papers and/or githubs):
+# Supported models:            Link to respective papers and/or githubs:
 #   non-precessing:
 #     - DANSur                https://arxiv.org/abs/2412.06946 ; https://github.com/osvaldogramaxo/DANSur_22/
-#     - IMRPhenomXHM
+#     - IMRPhenomXHM          https://arxiv.org/abs/2001.10914
 #     - NRHybSur3dq8          https://github.com/sxs-collaboration/gwsurrogate/blob/master/tutorial/website/NRHybSur2dq15.ipynb
 #   precessing:
-#     - IMRPhenomXO4a
+#     - IMRPhenomXO4a         https://arxiv.org/abs/2312.10025
 #     - NRSur7dq4             https://arxiv.org/abs/1905.09300
 
 surrogate_model = 'dansur'
