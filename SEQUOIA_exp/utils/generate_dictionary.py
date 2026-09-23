@@ -39,29 +39,21 @@ def print_dict(d, indent=0):
             print(f"{spaces}- {key}: {value}")
 
 def read_hdf5_value(value):
-    """
-    Lee un dataset HDF5 de un solo elemento y devuelve un valor Python.
-    Funciona para bytes, strings, ints, floats y tipos numpy.
-    """
 
     raw = value[0]
 
-    # bytes / numpy.bytes_
     if isinstance(raw, (bytes, np.bytes_)):
         raw = raw.decode("utf-8").strip()
 
-    # String
     if isinstance(raw, str):
         try:
             return ast.literal_eval(raw)
         except (ValueError, SyntaxError):
             return raw
 
-    # Tipos numpy -> tipos Python
     if isinstance(raw, np.generic):
         return raw.item()
 
-    # int, float, bool, etc.
     return raw
 
 
@@ -304,13 +296,6 @@ def load_zenodo_configuration(zenodo_file):
                         s = ds[0].decode("utf-8").strip()
                         dicc["spline-calibration-nodes"] =  ast.literal_eval(s)
 
-                    # if "reference-frame" in parameter:
-                    #     s = ds[0].decode("utf-8").strip()
-                    #     dicc["reference_frame"] =  ast.literal_eval(s)
-
-                    # if "time-reference" in parameter:
-                    #   s = ds[0].decode("utf-8").strip()
-                    #   dicc["time_reference"] =  ast.literal_eval(s)
 
             for parameter, value in meta.items():
                 if parameter == "trigger-time":
