@@ -2,7 +2,7 @@ import bilby
 from bilby.gw.waveform_generator import LALCBCWaveformGenerator
 def approximant_generator(dicc,targ_keys):
         waveform_arguments = dict(
-            waveform_approximant="IMRPhenomXO4a", 
+            waveform_approximant=dicc["surrogate_model"], 
         )
         waveform_generator =bilby.gw.waveform_generator.WaveformGenerator(
             duration=dicc["duration"],
