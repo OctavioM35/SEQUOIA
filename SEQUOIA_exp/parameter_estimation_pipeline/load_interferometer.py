@@ -206,13 +206,6 @@ def load_ifos(event_dir, event, dicc, zenodo_file):
                                             ap_key = list(file.keys())[0]
                                             fs, data = file[f'{ap_key}/psds/V1'][()].T
                                     v1_psd = FrequencySeries(data, frequencies=fs)
-                                #             v1.calibration_model = bilby.gw.detector.calibration.CubicSpline(
-                                # # envelope_file = file[f"{ap_key}/calibration_envelope/V1"][()],
-                                # prefix="recalib_V1_",
-                                # minimum_frequency=int(dicc["minimum-frequency"]["V1"]),
-                                # maximum_frequency=int(dicc["maximum-frequency"]["V1"]),
-                                # n_points=int(dicc["spline-calibration-nodes"])
-                            # )
 
                                     if dicc["start_time"] ==0:
                                             dicc["gps_time"] = v1_ts.times.value[0]+8
