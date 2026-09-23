@@ -7,13 +7,16 @@ from config import *
 from process_event import process_event
 import sys
 from pathlib import Path
+from utils.install_surrogates import install_surrogates
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 
 def main():
-    ruido = ['GW230628_231200', 'GW230819_171910', 'GW231206_233901', 'GW230825_041334', 'GW240109_050431', 'GW231029_111508', 'GW240107_013215', 'GW230814_230901', 'GW230820_212515', 'GW230601_224134', 'GW230803_033412', 'GW231001_140220', 'GW231004_232346', 'GW231113_122623', 'GW230914_111401', 'GW230814_061920']
+
+    if install_surrogates is True:
+          install_surrogates()
 
     events_with_issues = []
     
@@ -38,22 +41,24 @@ def main():
     total_events = len(folders)
 
     print(f"Found {total_events} event(s)")
-
+    surrogate_models = ['nrh' , 'nrsur']
+    resultados = ['/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/resultados_nrh', '/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/resultados_nrsur']
+   
     for i, folder in enumerate(folders, start=1):
-        # if folder in ruido:
-        #     continue
-        print("\n" + "=" * 60)
-        print(f"Processing event {folder}")
-        print(f"Event {i}/{total_events}")
-        print("=" * 60)
+            # if folder in ruido:
+            #     continue
+            print("\n" + "=" * 60)
+            print(f"Processing event {folder}")
+            print(f"Event {i}/{total_events}")
+            print("=" * 60)
 
-                
-        problem = process_event(folder)
+                    
+            problem = process_event(folder,surrogate_model,results)
 
-        if problem is not None:
-                events_with_issues.append(
-                    (folder, problem)
-                )
+            if problem is not None:
+                    events_with_issues.append(
+                        (folder, problem)
+                    )
 
 
     print("\n" + "=" * 60)
@@ -63,7 +68,7 @@ def main():
     print("Events with issues: ")
 
     for folder, reason in events_with_issues:
-            print(f"  - {folder}: {reason}")
+                print(f"  - {folder}: {reason}")
     print('Number of events with issues: ' , len(events_with_issues))
 
 

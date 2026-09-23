@@ -9,7 +9,7 @@ results = (
 )
 
 data_folder = (
-    "/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/gwtc_selected"
+    "/home/octaio-m/PycharmProjects/PythonProject/TFG/DANSur_22-master/gwtc_9s"
 )
 
 # ============================================================
@@ -22,30 +22,34 @@ run_particular_event = True
 
 # Event to analyse when run_particular_event = True
 particular_event = "GW200216_220804" 
+                    #GW190910_112807
 # ============================================================
 # 3. Inference configuration
 # ============================================================
 
-resume =True
+resume = True          
 
-# Supported models:            Link to respective papers and/or githubs:
+# Supported surrogates models:            Link to respective papers and/or githubs):
 #   non-precessing:
 #     - DANSur                https://arxiv.org/abs/2412.06946 ; https://github.com/osvaldogramaxo/DANSur_22/
-#     - IMRPhenomXHM          https://arxiv.org/abs/2001.10914
+#     - IMRPhenomXHM
 #     - NRHybSur3dq8          https://github.com/sxs-collaboration/gwsurrogate/blob/master/tutorial/website/NRHybSur2dq15.ipynb
 #   precessing:
-#     - IMRPhenomXO4a         https://arxiv.org/abs/2312.10025
 #     - NRSur7dq4             https://arxiv.org/abs/1905.09300
 
 surrogate_model = 'dansur'
 
+#True -> installs NRHybSur3dq8 and NRSur7dq4. This only needs to be done once.
+install_surrogates = False
+
+
 #False -> reruns already finished events
 #True -> skips processed events
-skip = False
+skip = True
 
-npoints =500
+npoints = 1000
 
-stopping = 1
+stopping = 0.1
 
 sampling_seed = 0
 
@@ -215,3 +219,9 @@ custom_config = {
             else None
         ),
     }
+
+# GW200322_091133: invalid syntax (<unknown>, line 1)
+# GW200308_173609: invalid syntax (<unknown>, line 1)
+# GW200220_124850: invalid syntax (<unknown>, line 1)
+# GW231102_071736: Unable to synchronously open file (truncated file: eof = 235347968, sblock->base_addr = 0, stored_eof = 240925926)
+#  - GW190915_235702: 
