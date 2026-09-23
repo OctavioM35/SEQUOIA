@@ -49,9 +49,13 @@ def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
         label = "NRHybSur3dq8"
 
 
-    elif dicc["surrogate_model"].lower() in 'imr' :
+    elif dicc["surrogate_model"].lower() in 'IMRPhenomXHM'.lower() :
         generated_waveform = approximant_generator(dicc,targ_keys)
-        label = "IMR"
+        label = "IMRPhenomXHM"
+        
+    elif dicc["surrogate_model"].lower() in 'IMRPhenomXO4a'.lower() :
+        generated_waveform = approximant_generator(dicc,targ_keys)
+        label = "IMRPhenomXO4a"
 
     elif dicc["surrogate_model"].lower() in 'NRSur7dq4'.lower() :        
         generated_waveform = nrsur_waveform_generator(dicc,targ_keys)
