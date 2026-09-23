@@ -7,7 +7,6 @@ import gwsurrogate as gws
 import matplotlib.pyplot as plt
 
 nnsur = DANSur(device="cpu")
-import time
 
 
 def make_my_gen_func(dicc):
@@ -17,9 +16,7 @@ def make_my_gen_func(dicc):
 
 
                 out = nnsur_convert(times, **converted_params)
-                # t0 = time.perf_counter()
 
-                # raise Exception
                 domain, h, _ = nnsur(
                     q=out['q'],
                     chiA0=[0, 0, out['chiA0']],
@@ -33,26 +30,11 @@ def make_my_gen_func(dicc):
                     phi_ref=out['phi_ref'],
                     units='mks'
                 )
-                # t_eval = time.perf_counter() - t0
-                # print(f"Tiempo de evaluación dansur: {t_eval:.6f} s")
+
                 h = np.squeeze(np.asarray(h))
                 h_plus = np.real(h)
                 h_cross = np.imag(h)
-                # print(h)
-                # print(len(h))
-                # print(type(h))
-                # print(len(h))
 
-                # plt.figure(figsize=(10, 5))
-                # plt.plot(domain, h_plus, label="h_plus")
-                # plt.plot(domain, h_cross, label="h_cross")
-                # plt.xlabel("Time [s]")
-                # plt.ylabel("Strain")
-                # plt.legend()
-                # plt.grid()
-                # plt.tight_layout()
-                # plt.show()
-                # plt.savefig('prueba dansur')
                 return {"plus": h_plus, "cross": h_cross}
     return my_gen_func
 
