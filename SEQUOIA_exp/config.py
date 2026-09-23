@@ -216,9 +216,3 @@ custom_config = {
             else None
         ),
     }
-
-# GW200322_091133: invalid syntax (<unknown>, line 1)
-# GW200308_173609: invalid syntax (<unknown>, line 1)
-# GW200220_124850: invalid syntax (<unknown>, line 1)
-# GW231102_071736: Unable to synchronously open file (truncated file: eof = 235347968, sblock->base_addr = 0, stored_eof = 240925926)
-#  - GW190915_235702: 
