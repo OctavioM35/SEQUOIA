@@ -14,4 +14,4 @@ The priors and parameter estimation configuration values used by SEQUOIA can be 
 
 SEQUOIA follows an installation procedure nearly identical to that of the DANSur surrogate model. Detailed installation instructions are available at the DANSur github repository: https://github.com/osvaldogramaxo/DANSur_22. After following this steps the option install_surrogates must be put on True in config.py to install NRHybSur3dq8 and NRSur7dq4 surrogates models.
 
-
+SEQUOIA sxs performs Parameter Estimation on sxs simulations. Currently under construction. Expect tons of bugs.
