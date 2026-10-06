@@ -1,0 +1,61 @@
+import numpy as np
+import bilby
+from scripts.surrogate.sur_utils import DANSur
+from parameter_estimation_pipeline.dansur_generator.waveform_conversion import nnsur_convert
+from gwpy.frequencyseries import FrequencySeries
+import gwsurrogate as gws
+import matplotlib.pyplot as plt
+
+nnsur = DANSur(device="cpu")
+import time
+
+
+def make_my_gen_func(dicc):
+    def my_gen_func(times, **kwargs):
+
+                converted_params = bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters(kwargs)[0]
+                ht = dicc["signal"][0]
+
+                t_sxs = ht.times.value
+
+                out = nnsur_convert(times, **converted_params)
+
+                domain, h, _ = nnsur(
+                    q=out['q'],
+                    chiA0=[0, 0, out['chiA0']],
+                    chiB0=[0, 0, out['chiB0']],
+                    M=out['M'],
+                    dist_mpc=out['dist_mpc'],
+                    times=t_sxs,
+                    f_low=dicc["waveform"]["f_low"],
+                    inclination=out['inclination'],
+                    f_ref=dicc["waveform"]["f_ref"],
+                    phi_ref=out['phi_ref'],
+                    units='mks'
+                )
+                
+                # h = h[(2, 2)][0]
+                h = np.squeeze(np.asarray(h))
+
+                h = np.squeeze(np.asarray(h))
+                h_plus = np.real(h)
+                h_cross = np.imag(h)
+
+                return {"plus": h_plus, "cross": h_cross}
+    return my_gen_func
+
+def waveform_generator(dicc,targ_keys):
+
+        waveform_generator = bilby.gw.waveform_generator.WaveformGenerator(
+            duration=float(dicc["duration"]),
+            sampling_frequency=float(dicc["sampling-frequency"]),
+            # time_domain_source_model=mymodel,
+            parameter_conversion=bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters, 
+            time_domain_source_model=make_my_gen_func(dicc),
+            frequency_domain_source_model=None,
+            # waveform_arguments=waveform_arguments,
+            start_time = dicc["start_time"]
+        )        
+        waveform_generator.source_parameter_keys = set(targ_keys)
+
+        return waveform_generator
