@@ -43,14 +43,12 @@ def main():
     print(f"Found {total_events} event(s)")
    
     for i, folder in enumerate(folders, start=1):
-            # if folder in ruido:
-            #     continue
+
             print("\n" + "=" * 60)
             print(f"Processing event {folder}")
             print(f"Event {i}/{total_events}")
             print("=" * 60)
 
-                    
             problem = process_event(folder,surrogate_model,results)
 
             if problem is not None:
