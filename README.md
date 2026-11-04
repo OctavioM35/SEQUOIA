@@ -1,3 +1,5 @@
+Sequential Gravitational-Wave Event Parameter Estimation Pipeline (SEQUOIA)
+
 SEQUOIA is a GW parameter estimation algorithm capable of employing the neuronal networks DANSur, NRHybSur3dq8 and NRSur7dq4 to infer GW signals parameters within DANSur's time of validity ($`ℳ > 25 \, M_\odot`$). and compare the resulting posterior distributions with those published by the LVK Collaboration available on Zenodo.
 The algorithm takes as input the paths to directories containing lists of GW data, which are assumed to follow the following naming convention:
 
@@ -11,6 +13,8 @@ GWdate              <- Event directory
 ```
 
 The priors and parameter estimation configuration values used by SEQUOIA can be customized or they can be automatically loaded from the Zenodo file. This can be configurated in the config.py file.
+
+Project structure
 
 SEQUOIA follows an installation procedure nearly identical to that of the DANSur surrogate model. Detailed installation instructions are available at the DANSur github repository: https://github.com/osvaldogramaxo/DANSur_22. After following this steps the option install_surrogates must be put on True in config.py to install NRHybSur3dq8 and NRSur7dq4 surrogates models.
 
