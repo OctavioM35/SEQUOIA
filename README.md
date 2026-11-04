@@ -101,7 +101,7 @@ SEQUOIASXS is a GW parameter estimation algorithm designed with the same philoso
 SEQUOIASXS
 ├── config.py                          # User settings (event, surrogate, paths)
 ├── main.py                            # Entry point: loops over events
-└── sequoia
+└── sequoiasxs
     │
     ├── utils                          # 1. Setup
     │   ├── generate_dictionary.py     # Builds the per-event settings dictionary
@@ -130,12 +130,11 @@ SEQUOIASXS
     │       ├── nrh_waveform_generator.py    # NRHybSur waveform generator
     │       └── nrh_waveform_conversion.py   # Parameter conversion for NRHybSur
     │
-    ├── pipeline                       # 6. Inference
-    │   ├── process_event.py           # Runs all steps for one event
-    │   └── run_inference_bilby.py     # Bilby + nessai sampling, saves posteriors
-    │
-    └── plotting                       # 7. Output
-        └── plot_manual_corner.py      # Corner plots (surrogate and vs. LVK)
+    └── pipeline                       # 6. Inference
+        ├── process_event.py           # Runs all steps for one event
+        └── run_inference_bilby.py     # Bilby + nessai sampling, saves posteriors
+    
+
 ```
 
 ## Pipeline
