@@ -73,7 +73,7 @@ outdir_NN_GWdate
 ├── selected_surrogate.log                         # Run log
 ├── selected_surrogate_nessai/                     # nessai sampler output
 ├── selected_surrogate_result.json                 # Posterior samples
-├── selected_surrogate_vs_Zenodo_corner_comparison_GWXXXXXX_XXXXXX.png  # Comparison with LVK
+├── selected_surrogate_vs_Zenodo_corner_comparison_GWdate.png  # Comparison with LVK
 └── GWdate selected_surrogate_reconstructed_waveform.png                # Reconstructed waveform
 ```
 
