@@ -172,4 +172,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ## Acknowledgements
 
 SEQUOIA includes code adapted from [DANSur](https://github.com/osvaldogramaxo/DANSur_HM),
-licensed under the MIT License. Copyright (c) AÑO Autor Original.
+licensed under the MIT License. Copyright (c) 2026 DANSur team.
