@@ -99,27 +99,22 @@ SEQUOIASXS is a GW parameter estimation algorithm designed with the same philoso
 
 ```text
 SEQUOIASXS
-├── config.py                          # User settings (event, surrogate, paths)
-├── main.py                            # Entry point: loops over events
+├── config.py                          # User settings (simulation, surrogate, paths)
+├── main.py                            # Entry point: loops over simulations
 └── sequoiasxs
     │
-    ├── utils                          # 1. Setup
-    │   ├── generate_dictionary.py     # Builds the per-event settings dictionary
-    │   └── synthetic_waveform.py      # Converts the SXS waveform into LVK-like data
+    ├── supported_surrogates           # 1. Surrogate installation
+    │   └── install_surrogates.py      # Downloads/installs surrogate data
     │
-    ├── data                           # 2. Data loading
-    │   ├── load_zenodo_directories.py # Locates LVK Zenodo files for the event
-    │   └── load_interferometer.py     # Builds detectors (strain, PSD, frequencies)
+    ├── utils                          # 2. Setup and surrogate selection
+    │   ├── synthetic_waveform.py      # Converts the SXS waveform into LVK-like data
+    │   ├── surrogates.py              # Registry of available surrogates
+    │   └── evaluate_selected_surrogate.py  # Calls the chosen surrogate's generator
     │
     ├── priors                         # 3. Priors
     │   └── custom_priors.py           # Reads custom priors
     │
-    ├── supported_surrogates           # 4. Surrogate selection
-    │   ├── surrogates.py              # Registry of available surrogates
-    │   ├── install_surrogates.py      # Downloads/installs surrogate data
-    │   └── evaluate_selected_surrogate.py  # Calls the chosen surrogate's generator
-    │
-    ├── waveforms                      # 5. Waveform generation (one per model)
+    ├── waveforms                      # 4. Waveform generation (one per model)
     │   ├── dansur
     │   │   ├── waveform_generator.py  # DANSur waveform generator
     │   │   └── waveform_conversion.py # Parameter conversion for DANSur
@@ -130,10 +125,12 @@ SEQUOIASXS
     │       ├── nrh_waveform_generator.py    # NRHybSur waveform generator
     │       └── nrh_waveform_conversion.py   # Parameter conversion for NRHybSur
     │
-    └── pipeline                       # 6. Inference
-        ├── process_event.py           # Runs all steps for one event
-        └── run_inference_bilby.py     # Bilby + nessai sampling, saves posteriors
-    
+    ├── pipeline                       # 5. Inference
+    │   ├── process_event.py           # Runs all steps for one simulation
+    │   └── run_inference_bilby.py     # Bilby + nessai sampling, saves posteriors
+    │
+    └── output                         # 6. Output
+        └── dif.py                     # Obtained vs. injected parameters comparison
 
 ```
 
