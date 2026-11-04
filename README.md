@@ -144,7 +144,7 @@ After loading a simulation, SEQUOIASXS performs parameter estimation using custo
 ### Output produced
 
 ```text
-outdir_NN_SXS_simulation
+outdir_NN_SXS:BBH:identifier
 ├── selected_surrogate_corner.png                  # Corner plot of the posteriors
 ├── selected_surrogate_execution_time.json         # Wall-clock time of the inference
 ├── selected_surrogate.log                         # Run log
