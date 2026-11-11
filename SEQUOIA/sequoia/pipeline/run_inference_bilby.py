@@ -144,46 +144,9 @@ def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
     print('====' * 30)
     print(f"PID={os.getpid()} | likelihood={dt:.4f} s")
 
-    # _original_log_likelihood = likelihood.log_likelihood
-
-    # def debug_log_likelihood(parameters):
-    #     t0 = time.time()
-
-    #     print("\n>>> Evaluando likelihood...", flush=True)
-
-    #     try:
-    #         logl = _original_log_likelihood(parameters)
-
-    #         elapsed = time.time() - t0
-
-    #         print(
-    #             f">>> logL = {logl} | "
-    #             f"tiempo = {elapsed:.3f} s | "
-    #             f"finite = {np.isfinite(logl)}",
-    #             flush=True
-    #         )
-
-    #         return logl
-
-    #     except Exception as e:
-    #         print(
-    #             f">>> ERROR en likelihood después de {time.time()-t0:.3f} s: "
-    #             f"{type(e).__name__}: {e}",
-    #             flush=True
-    #         )
-    #         raise
-
-    # likelihood.log_likelihood = debug_log_likelihood
 
     start_time = time.time()
-        # phase_marginalization=dicc["marginalization"]["phase"],
-        # time_marginalization=dicc["marginalization"]["time"],
-        # jitter_time=dicc["marginalization"]["jitter"],
 
-        # distance_marginalization=False,
-        # phase_marginalization=True,
-        # time_marginalization=True,
-        # jitter_time=False,
 
     result=bilby.run_sampler(
                 likelihood=likelihood,
