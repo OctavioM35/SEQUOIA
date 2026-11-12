@@ -27,11 +27,8 @@ sxs_simulation = "BBH:0926"
 resume = False          
 
 # Supported models:            Link to respective papers and/or githubs):
-#   non-precessing:
 #     - DANSur                https://arxiv.org/abs/2412.06946 ; https://github.com/osvaldogramaxo/DANSur_22/
-#     - IMRPhenomXHM
 #     - NRHybSur3dq8          https://github.com/sxs-collaboration/gwsurrogate/blob/master/tutorial/website/NRHybSur2dq15.ipynb
-#   precessing:
 #     - NRSur7dq4             https://arxiv.org/abs/1905.09300
 
 surrogate_model = 'nrh'
