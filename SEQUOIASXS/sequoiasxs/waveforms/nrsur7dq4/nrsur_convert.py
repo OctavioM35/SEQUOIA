@@ -61,19 +61,22 @@ def nrsur_convert(
     # chi_2 = chi_2
     a_1=a_1,
     a_2=a_2,
+    q_val = 1.0 / mass_ratio if mass_ratio <= 1.0 else float(mass_ratio)
+    if total_mass is None and kwargs.get('chirp_mass') is not None:
+        q_norm = mass_ratio if mass_ratio <= 1.0 else 1.0 / mass_ratio
+        total_mass = float(kwargs['chirp_mass']) * ((1.0 + q_norm) ** 1.2) / (q_norm ** 0.6)
     out_pars = dict(
-    q = 1/mass_ratio, 
-    chiA0 = chiA0,
-    chiB0 = chiB0,
-    M = total_mass,
-    dist_mpc=luminosity_distance,
-    f_low=0,
-    # dt=dt, 
-    times = times,
-    f_ref=None,
-    freqs=None,
-    inclination= pi - theta_jn,
-    phi_ref = phase,
-    units='mks',
+        q=q_val, 
+        chiA0=chiA0,
+        chiB0=chiB0,
+        M=total_mass,
+        dist_mpc=luminosity_distance,
+        f_low=0,
+        times=times,
+        f_ref=None,
+        freqs=None,
+        inclination=float(theta_jn),
+        phi_ref=float(phase),
+        units='mks',
     )
     return out_pars

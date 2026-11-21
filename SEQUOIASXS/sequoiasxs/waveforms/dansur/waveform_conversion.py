@@ -1,21 +1,36 @@
 from typing import Any
+import numpy as np
 
-from numpy import pi
+
 def nnsur_convert(
     times,
     **kwargs) -> dict[str, Any]:
+    theta_jn = float(kwargs.get('theta_jn', 0.0))
+    phi_ref = float(kwargs.get('phase', kwargs.get('phi_ref', 0.0)))
+    q_val = float(kwargs.get('mass_ratio', kwargs.get('mass_2', 1.0) / kwargs.get('mass_1', 1.0)))
+    if q_val > 1.0:
+        q_val = 1.0 / q_val
+
+    if 'total_mass' in kwargs:
+        M = float(kwargs['total_mass'])
+    elif 'chirp_mass' in kwargs:
+        mc = float(kwargs['chirp_mass'])
+        M = mc * ((1.0 + q_val) ** 1.2) / (q_val ** 0.6)
+    else:
+        M = float(kwargs.get('mass_1', 35.0)) + float(kwargs.get('mass_2', 35.0))
+
     out_pars = dict(
-        q=kwargs['mass_ratio'],
-        chiA0=kwargs['chi_1'],
-        chiB0=kwargs['chi_2'],
-        M=kwargs['total_mass'],
-        dist_mpc=kwargs['luminosity_distance'],
+        q=q_val,
+        chiA0=float(kwargs.get('chi_1', 0.0)),
+        chiB0=float(kwargs.get('chi_2', 0.0)),
+        M=M,
+        dist_mpc=float(kwargs.get('luminosity_distance', 100.0)),
         f_low=0,
         times=times,
         f_ref=None,
         freqs=None,
-        inclination=pi-kwargs['theta_jn'],
-        phi_ref=kwargs['phase'],
+        inclination=theta_jn,
+        phi_ref=phi_ref,
         units='mks',
     )
     """

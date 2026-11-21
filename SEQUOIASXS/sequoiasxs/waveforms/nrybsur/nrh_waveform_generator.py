@@ -43,8 +43,8 @@ def make_my_gen_func(dicc):
         5. Interpolates the real and imaginary parts of the strain with
            cubic splines. Times outside the surrogate domain are set to zero.
     """
-    f_low = float(dicc["waveform"]["f_low"])
-    f_ref = float(dicc["waveform"]["f_ref"])
+    f_low = float(dicc["waveform"]["minimum-frequency"])
+    f_ref = float(dicc["waveform"]["reference-frequency"])
 
     def my_gen_func(times, **kwargs):
 
@@ -63,63 +63,32 @@ def make_my_gen_func(dicc):
             chiB0=[0.0, 0.0, out["chiB0"]],
             M=out["M"],
             dist_mpc=out["dist_mpc"],
-            f_low=f_low,
+            f_low=0,
             inclination=out["inclination"],
-            f_ref=f_ref,
+            f_ref=0,
             phi_ref=out["phi_ref"],
             # mode_list=[(2, 2)],
             units="mks",
         )
-
+        # plt.plot(h)
+        # plt.savefig('despues2.png')
+        # raise ValueError("Check the surrogate waveform. The plot has been saved as 'despues.png'.")
         domain = np.asarray(domain)
         h = np.asarray(h).squeeze()
 
+        # Cyclic relative time so merger peak (t=0) is at times[0] (index 0 modulo duration):
+        # Ringdown (0 <= tau <= t_post_max) sits at the start of times.
+        # Inspiral (tau < 0) wraps to the end of times.
+        t_post_max = float(domain[-1]) + 0.01
+        dt = times[1] - times[0]
+        duration_local = len(times) * dt
+        t_elapsed = times - times[0]
+        times_rel = np.where(t_elapsed <= t_post_max, t_elapsed, t_elapsed - duration_local)
 
-        domain = domain - domain[-1]
-        times_rel = times - times[-1]
+        h_plus = np.interp(times_rel, domain, h.real, left=0.0, right=0.0)
+        # In NR convention h = h_+ - i h_x, so h_cross = -Im(h)
+        h_cross = np.interp(times_rel, domain, -h.imag, left=0.0, right=0.0)
 
-
-        cs_plus = CubicSpline(
-            domain,
-            h.real,
-            extrapolate=False
-        )
-
-        cs_cross = CubicSpline(
-            domain,
-            h.imag,
-            extrapolate=False
-        )
-
-        h_plus = cs_plus(times_rel)
-        h_cross = cs_cross(times_rel)
-
-        h_plus = np.where(np.isfinite(h_plus), h_plus, 0.0)
-        h_cross = np.where(np.isfinite(h_cross), h_cross, 0.0)
-
-
-        # plt.figure(figsize=(14, 5))
-
-        # plt.plot(
-        #     domain,
-        #     h.real,
-        #     label="Original NRH/NRHSur"
-        # )
-
-        # plt.plot(
-        #     times_rel,
-        #     h_plus,
-        #     "--",
-        #     label="Cubic spline interpolation"
-        # )
-
-        # plt.xlabel("Time", fontsize=16)
-        # plt.ylabel(r"$h_+$", fontsize=16)
-        # plt.legend()
-        # plt.grid(True)
-        # plt.tight_layout()
-        # plt.show()
-        # plt.savefig('despues2')
         return {
             "plus": h_plus,
             "cross": h_cross,

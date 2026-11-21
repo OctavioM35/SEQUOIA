@@ -1,4 +1,4 @@
-from utils.surrogates import surrogates
+from sequoiasxs.utils.surrogates import surrogates
 
 def evaluate_selected_surrogate(surrogate_model):
     """

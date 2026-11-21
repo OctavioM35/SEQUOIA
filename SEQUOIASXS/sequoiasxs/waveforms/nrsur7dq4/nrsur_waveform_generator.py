@@ -53,8 +53,15 @@ def make_my_gen_func(dicc):
         chiA0 = np.asarray(out["chiA0"], dtype=float)
         chiB0 = np.asarray(out["chiB0"], dtype=float)
 
-        chiA0 = [0.0, 0.0, chiA0[2]]
-        chiB0 = [0.0, 0.0, chiB0[2]]
+        if dicc.get("precession_model", False):
+            chiA0 = [float(chiA0[0]), float(chiA0[1]), float(chiA0[2])]
+            chiB0 = [float(chiB0[0]), float(chiB0[1]), float(chiB0[2])]
+        else:
+            chiA0 = [0.0, 0.0, float(chiA0[2])]
+            chiB0 = [0.0, 0.0, float(chiB0[2])]
+
+        f_low = dicc.get("waveform", {}).get("f_low", dicc.get("waveform", {}).get("minimum-frequency", 20.0))
+        f_ref = dicc.get("waveform", {}).get("f_ref", dicc.get("waveform", {}).get("reference-frequency", 20.0))
 
         domain, h, _ = nrsur(
             q=out["q"],
@@ -62,41 +69,30 @@ def make_my_gen_func(dicc):
             chiB0=chiB0,
             M=out["M"],
             dist_mpc=out["dist_mpc"],
-            f_low=dicc["waveform"]["f_low"],
-            f_ref=dicc["waveform"]["f_ref"],
+            f_low=float(f_low),
+            f_ref=float(f_ref),
             inclination=out["inclination"],
             dt=1 / dicc["sampling-frequency"],
             phi_ref=out["phi_ref"],
-            ellMax = 2,
+            ellMax=2,
             units="mks",
         )
-
 
         domain = np.asarray(domain)
         h = np.asarray(h).squeeze()
 
+        # Cyclic relative time so merger peak (t=0) is at times[0] (index 0 modulo duration):
+        # Ringdown (0 <= tau <= t_post_max) sits at the start of times.
+        # Inspiral (tau < 0) wraps to the end of times.
+        t_post_max = float(domain[-1]) + 0.01
+        dt = times[1] - times[0]
+        duration_local = len(times) * dt
+        t_elapsed = times - times[0]
+        times_rel = np.where(t_elapsed <= t_post_max, t_elapsed, t_elapsed - duration_local)
 
-        domain = domain - domain[-1]
-        times_rel = times - times[-1]
-
-
-        cs_plus = CubicSpline(
-            domain,
-            h.real,
-            extrapolate=False
-        )
-
-        cs_cross = CubicSpline(
-            domain,
-            h.imag,
-            extrapolate=False
-        )
-
-        h_plus = cs_plus(times_rel)
-        h_cross = cs_cross(times_rel)
-
-        h_plus = np.where(np.isfinite(h_plus), h_plus, 0.0)
-        h_cross = np.where(np.isfinite(h_cross), h_cross, 0.0)
+        h_plus = np.interp(times_rel, domain, h.real, left=0.0, right=0.0)
+        # In NR convention h = h_+ - i h_x, so h_cross = -Im(h)
+        h_cross = np.interp(times_rel, domain, -h.imag, left=0.0, right=0.0)
 
         return {
             "plus": h_plus,

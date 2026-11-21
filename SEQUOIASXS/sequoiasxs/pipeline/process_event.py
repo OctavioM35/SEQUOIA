@@ -4,8 +4,8 @@ import shutil
 from config import *
 from sequoiasxs.priors.custom_priors import load_custom_priors
 from sequoiasxs.pipeline.run_inference_bilby  import run_inference
-from utils.evaluate_selected_surrogate import evaluate_selected_surrogate
-from utils.synthetic_waveform import synthetic_waveform
+from sequoiasxs.utils.evaluate_selected_surrogate import evaluate_selected_surrogate
+from sequoiasxs.utils.synthetic_waveform import synthetic_waveform
 
 
 def process_event(sim,surrogate_model, results):
@@ -78,8 +78,12 @@ def process_event(sim,surrogate_model, results):
 
         dicc["precession_model"] = precession_or_not
 
+
+        dicc["sxs"] = sim
+        ifos = synthetic_waveform(dicc)
+        
         targ_keys, priors = load_custom_priors(dicc)
-  
+
         # ---------------------------------------------------------
         # 6. Check priors
         # ---------------------------------------------------------
@@ -98,10 +102,6 @@ def process_event(sim,surrogate_model, results):
         # ---------------------------------------------------------
         # 7. Load interferometers
         # ---------------------------------------------------------
-
-        dicc["sxs"] = sim
-        ifos = synthetic_waveform(dicc)
-
 
         if ifos is None:
 
@@ -143,7 +143,7 @@ def process_event(sim,surrogate_model, results):
     
         return None
     
-    except Exception as e:
+    except ZeroDivisionError as e:
 
 
         if (

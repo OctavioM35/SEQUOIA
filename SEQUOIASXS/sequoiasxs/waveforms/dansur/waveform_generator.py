@@ -1,13 +1,16 @@
 import numba
 import numpy as np
 import bilby
-
+import torch
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
 from numpy.typing import NDArray
 from gwsurrogate.surrogate import _sYlm
 from functools import partial
 from typing import Any
 from dansur.surrogate.sur_utils import DANSur
 from sequoiasxs.waveforms.dansur.waveform_conversion import nnsur_convert
+import matplotlib.pyplot as plt
 
 MODEL_PATH = "models/DANSur_HM_jitted.pt"  # path relative to repo root
 
@@ -69,37 +72,20 @@ def _numba_taper_complex(data_real, data_imag):
 
 
 @numba.njit(parallel=True)
-def _numba_taper_roll_align_modes(modes_real, modes_imag, roll_by, m_vals, phi22_peak):
-    """Fused kernel: taper + cyclic roll left by roll_by + rotation by
-    exp(-i * (m/2) * phi22_peak) for every mode (parallel over modes)."""
+def _numba_taper_modes(modes_real, modes_imag):
+    """Taper the start of each time-aligned mode (parallel over modes)."""
     n_modes, n = modes_real.shape
     out_real = np.empty_like(modes_real)
     out_imag = np.empty_like(modes_imag)
 
     for k in numba.prange(n_modes):
-        # 1. Taper
         dr = modes_real[k].copy()
         di = modes_imag[k].copy()
         dr, di = _numba_taper_complex(dr, di)
 
-        # 2. Roll left (np.roll(arr, -roll_by))
-        roll_by_mod = roll_by % n
-        tmp_r = np.empty(n)
-        tmp_i = np.empty(n)
         for j in range(n):
-            src = (j + roll_by_mod) % n
-            tmp_r[j] = dr[src]
-            tmp_i[j] = di[src]
-
-        # 3. Phase rotation
-        angle = -(m_vals[k] / 2.0) * phi22_peak
-        cos_a = np.cos(angle)
-        sin_a = np.sin(angle)
-        for j in range(n):
-            r = tmp_r[j]
-            im = tmp_i[j]
-            out_real[k, j] = r * cos_a - im * sin_a
-            out_imag[k, j] = r * sin_a + im * cos_a
+            out_real[k, j] = dr[j]
+            out_imag[k, j] = di[j]
 
     return out_real, out_imag
 
@@ -161,49 +147,41 @@ def model_gen_func(model: DANSur, times: NDArray | None = None, **kwargs: Any) -
     # convention: 0 < q <= 1
     out_no_inc['q'] = out_no_inc['q'] if out_no_inc['q'] <= 1 else 1 / out_no_inc['q']
 
-    # Evaluate surrogate on its innate domain
+    # Evaluate surrogate on its innate chronological domain
     out_no_inc['times'] = None
     domain_full, h_modes_full, _ = model(**out_no_inc)
 
-    # Times relative to a fixed merger epoch (ignores sampled geocent_time
-    # to avoid GPS time-scale errors).
-    post_trig = domain_full[-1]
-    t_merger = float(times_arr[0]) + duration_local - post_trig
-    times_relative = times_arr - t_merger
-
-    # Interpolate each mode onto the requested grid
-    h_modes: dict[tuple[int, int], np.ndarray] = {}
-    for mode, hlm in h_modes_full.items():
-        h_modes[mode] = np.interp(times_relative, domain_full, hlm, left=0, right=0)
-
-    # PN relative-phase offsets are already applied by DANSur.__call__.
-
-    # Stack modes into contiguous arrays for Numba
-    mode_list_ordered = list(h_modes.keys())
+    # 2. Apply Planck taper on the chronological innate domain BEFORE cyclic wrapping
+    mode_list_ordered = list(h_modes_full.keys())
     n_modes = len(mode_list_ordered)
+    n_innate = len(domain_full)
+    modes_innate_r = np.empty((n_modes, n_innate), dtype=np.float64)
+    modes_innate_i = np.empty((n_modes, n_innate), dtype=np.float64)
+    for k, mode in enumerate(mode_list_ordered):
+        modes_innate_r[k] = h_modes_full[mode].real
+        modes_innate_i[k] = h_modes_full[mode].imag
+
+    tapered_innate_r, tapered_innate_i = _numba_taper_modes(modes_innate_r, modes_innate_i)
+
+    # 3. Cyclic relative time so merger peak (t=0) is at times_arr[0]:
+    # Ringdown (0 <= tau <= t_post_max) sits at the start of times_arr.
+    # Inspiral (tau < 0) wraps to the end of times_arr.
+    t_post_max = float(domain_full[-1]) + 0.01
+    t_elapsed = times_arr - times_arr[0]
+    times_relative = np.where(t_elapsed <= t_post_max, t_elapsed, t_elapsed - duration_local)
+
+    # Interpolate each tapered mode onto the cyclic grid
     n_samples = len(times_arr)
-    modes_real = np.empty((n_modes, n_samples), dtype=np.float64)
-    modes_imag = np.empty((n_modes, n_samples), dtype=np.float64)
-    m_vals = np.empty(n_modes, dtype=np.int64)
-    for k, (l, m) in enumerate(mode_list_ordered):
-        modes_real[k] = h_modes[(l, m)].real
-        modes_imag[k] = h_modes[(l, m)].imag
-        m_vals[k] = m
+    out_r = np.empty((n_modes, n_samples), dtype=np.float64)
+    out_i = np.empty((n_modes, n_samples), dtype=np.float64)
+    for k in range(n_modes):
+        out_r[k] = np.interp(times_relative, domain_full, tapered_innate_r[k], left=0.0, right=0.0)
+        out_i[k] = np.interp(times_relative, domain_full, tapered_innate_i[k], left=0.0, right=0.0)
 
-    # Index of the merger (closest to t = 0)
-    peak_idx = int(np.argmin(np.abs(times_relative)))
-
-    # Taper + cyclic roll, no peak-phase rotation (phi22_peak = 0.0): the
-    # DANSur frame is already well defined, and rotating by arg h22(peak)
-    # flips the sign of odd-m modes whenever the phase crosses +-pi.
-    out_r, out_i = _numba_taper_roll_align_modes(
-        modes_real.copy(), modes_imag.copy(), peak_idx, m_vals, 0.0
-    )
-
-    # Mode sum with spin-weighted spherical harmonics (LAL convention)
+    # 4. Mode sum with spin-weighted spherical harmonics (matching SXS frame)
     theta_jn = float(out['inclination'])
     phase = float(out['phi_ref'])
-    phi_eval = float(np.pi / 2.0 - phase)
+    phi_eval = float(-phase)
     ylm_r = np.empty(n_modes)
     ylm_i = np.empty(n_modes)
     for k, (l, m) in enumerate(mode_list_ordered):
@@ -212,9 +190,8 @@ def model_gen_func(model: DANSur, times: NDArray | None = None, **kwargs: Any) -
         ylm_i[k] = y.imag
 
     h_real, h_imag = _numba_mode_sum_from_precomputed(out_r, out_i, ylm_r, ylm_i)
-
-    return {"plus": h_real, "cross": h_imag}
-
+    # In NR convention h = h_+ - i h_x, so h_plus = h_real, h_cross = -h_imag
+    return {"plus": h_real, "cross": -h_imag}
 
 def make_my_gen_func(dicc):
     """Returns a plain function f(times, **params) as bilby requires."""
@@ -225,7 +202,7 @@ def make_my_gen_func(dicc):
 
 def waveform_generator(dicc, targ_keys):
     """
-        Create the Bilby WaveformGenerator that uses the NRSur7dq4 surrogate.
+        Create the Bilby WaveformGenerator that uses the DANSurHM surrogate.
     
         The generator works in the time domain, with the duration, sampling
         frequency and start time taken from the configuration dictionary, and
