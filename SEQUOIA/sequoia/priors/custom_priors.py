@@ -17,14 +17,14 @@ def load_custom_priors():
         cosmology='Planck15', name='luminosity_distance', latex_label='$d_L$', unit='Mpc', 
         boundary=None)
     priors['chi_1'] = bilby.gw.prior.AlignedSpin(
-                        a_prior=bilby.core.prior.Uniform(minimum=-0.8, maximum=0.8, name=None, 
+                        a_prior=bilby.core.prior.Uniform(minimum=-0, maximum=0.8, name=None, 
                                                         latex_label=None, unit=None, boundary=None), 
                         z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
                                                         latex_label=None, unit=None, boundary=None), 
                         name='chi_1', latex_label='$\\chi_1$', unit=None, boundary=None, 
                         minimum=-0.8, maximum=0.8)
     priors['chi_2'] = bilby.gw.prior.AlignedSpin(
-                        a_prior=bilby.core.prior.Uniform(minimum=-0.8, maximum=0.8, name=None, 
+                        a_prior=bilby.core.prior.Uniform(minimum=-0, maximum=0.8, name=None, 
                                                         latex_label=None, unit=None, boundary=None), 
                         z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
                                                         latex_label=None, unit=None, boundary=None), 
