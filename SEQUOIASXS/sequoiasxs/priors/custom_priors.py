@@ -32,26 +32,33 @@ def load_custom_priors(dicc):
             name='chirp_mass',
             latex_label=r'$\mathcal{M}$'
         )
-        priors['mass_ratio'] = bilby.core.prior.Uniform(minimum=0.125, maximum=1.0, name='mass_ratio')
-        priors['chi_1'] = bilby.gw.prior.AlignedSpin(
-                                            a_prior=bilby.core.prior.Uniform(minimum=0, maximum=0.8, name=None, 
-                                                                            latex_label=None, unit=None, boundary=None), 
-                                            z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
-                                                                            latex_label=None, unit=None, boundary=None), 
-                                            name='chi_1', latex_label='$\\chi_1$', unit=None, boundary=None, 
-                                            minimum=-0.8, maximum=0.8)
-        priors['chi_2'] = bilby.gw.prior.AlignedSpin(
-                                            a_prior=bilby.core.prior.Uniform(minimum=0, maximum=0.8, name=None, 
-                                                                            latex_label=None, unit=None, boundary=None), 
-                                            z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
-                                                                            latex_label=None, unit=None, boundary=None), 
-                                            name='chi_2', latex_label='$\\chi_2$', unit=None, boundary=None, 
-                                            minimum=-0.8, maximum=0.8)
+        priors['mass_ratio'] = bilby.gw.prior.UniformInComponentsMassRatio(minimum=0.125, maximum=1.0, name='mass_ratio')
+        # priors['chi_1'] = bilby.gw.prior.AlignedSpin(
+        #                                     a_prior=bilby.core.prior.Uniform(minimum=0, maximum=0.8, name=None, 
+        #                                                                     latex_label=None, unit=None, boundary=None), 
+        #                                     z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
+        #                                                                     latex_label=None, unit=None, boundary=None), 
+        #                                     name='chi_1', latex_label='$\\chi_1$', unit=None, boundary=None, 
+        #                                     minimum=-0.8, maximum=0.8)
+        # priors['chi_2'] = bilby.gw.prior.AlignedSpin(
+        #                                     a_prior=bilby.core.prior.Uniform(minimum=0, maximum=0.8, name=None, 
+        #                                                                     latex_label=None, unit=None, boundary=None), 
+        #                                     z_prior=bilby.core.prior.Uniform(minimum=-1, maximum=1, name=None, 
+        #                                                                     latex_label=None, unit=None, boundary=None), 
+        #                                     name='chi_2', latex_label='$\\chi_2$', unit=None, boundary=None, 
+        #                                     minimum=-0.8, maximum=0.8)
+
+        priors["chi_1"] = bilby.core.prior.Uniform(
+    minimum=-0.8, maximum=0.8, name="chi_1", latex_label=r"$\chi_1$"
+    )
+        priors["chi_2"] = bilby.core.prior.Uniform(
+            minimum=-0.8, maximum=0.8, name="chi_2", latex_label=r"$\chi_2$"
+        )
         inj_params = dicc.get("inyection", {})
         priors['theta_jn'] = float(inj_params.get('theta_jn', 0.9))
         priors['ra'] = float(inj_params.get('ra', 1.375))
         priors['dec'] = float(inj_params.get('dec', -1.21))
-        priors['psi'] = float(inj_params.get('psi', 0.0))
+        priors['psi'] = float(inj_params.get('psi', 0.5))
         priors['phase'] = bilby.core.prior.Uniform(
             minimum=0.0,
             maximum=2 * np.pi,

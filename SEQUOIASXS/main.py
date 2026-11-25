@@ -23,25 +23,14 @@ def main():
     if install_surrogates == True:
            install_surrogates()
   
-
-    if run_particular_event:
-
-        sims = ['SXS:' + sxs_simulation]
-    else:
-
-        sims = [ ]
-        for sxs_id in [
-    'SXS:BBH:0110v2.0' , 'SXS:BBH:0237v2.0' , 'SXS:BBH:0926','SXS:BBH:1156','SXS:BBH:1355','SXS:BBH:1419','SXS:BBH:1509']: 
-                sims.append(sxs_id)
-    total_events = len(sims)
+    total_events = len(sxs_simulation)
     print(f"Found {total_events} event(s)")
-    for i, sim in enumerate(sims, start=1):
+    for i, sim in enumerate(sxs_simulation, start=1):
 
             print("\n" + "=" * 60)
             print(f"Processing event {sim}")
             print(f"Event {i}/{total_events}")
             print("=" * 60)
-
                     
             problem = process_event(sim,surrogate_model,results)
 

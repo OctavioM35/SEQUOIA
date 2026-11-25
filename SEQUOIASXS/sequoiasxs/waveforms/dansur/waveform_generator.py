@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 MODEL_PATH = "models/DANSur_HM_jitted.pt"  # path relative to repo root
 
-modes = [(2, 2), (3, 3), (2, 1), (4, 4), (3, 2), (5, 5), (4, 3)]
+modes = modes = [(2, 2), (3, 3), (2, 1), (4, 4), (3, 2), (5, 5), (4, 3)]
 sur = DANSur(path=MODEL_PATH, modes_list=modes)
 
 
@@ -138,60 +138,30 @@ def model_gen_func(model: DANSur, times: NDArray | None = None, **kwargs: Any) -
     converted_params = bilby.gw.conversion.convert_to_lal_binary_black_hole_parameters(kwargs)[0]
     out = nnsur_convert(times_arr, **converted_params)
 
-    # 1. Generate modes (inclination=None)
-    out_no_inc: dict[str, Any] = out.copy()
-    out_no_inc['inclination'] = None
-    out_no_inc['phi_ref'] = 0.0
-    out_no_inc['f_low'] = 0.0
+    # 1. Evaluar DANSur directamente con inclination y phi_ref en su dominio innato
+    out_eval: dict[str, Any] = out.copy()
+    out_eval['f_low'] = 0.0
+    out_eval['q'] = out_eval['q'] if out_eval['q'] <= 1 else 1 / out_eval['q']
+    out_eval['times'] = None
 
-    # convention: 0 < q <= 1
-    out_no_inc['q'] = out_no_inc['q'] if out_no_inc['q'] <= 1 else 1 / out_no_inc['q']
+    # DANSur devuelve h = h_+ - i h_x como un array complejo 1D cuando inclination != None
+    domain_full, h_innate, _ = model(**out_eval)
 
-    # Evaluate surrogate on its innate chronological domain
-    out_no_inc['times'] = None
-    domain_full, h_modes_full, _ = model(**out_no_inc)
+    # 2. Aplicar Planck taper en el dominio cronológico innato ANTES de envolver cíclicamente
+    h_r_in = np.ascontiguousarray(h_innate.real[None, :], dtype=np.float64)
+    h_i_in = np.ascontiguousarray(h_innate.imag[None, :], dtype=np.float64)
+    tapered_r, tapered_i = _numba_taper_modes(h_r_in, h_i_in)
 
-    # 2. Apply Planck taper on the chronological innate domain BEFORE cyclic wrapping
-    mode_list_ordered = list(h_modes_full.keys())
-    n_modes = len(mode_list_ordered)
-    n_innate = len(domain_full)
-    modes_innate_r = np.empty((n_modes, n_innate), dtype=np.float64)
-    modes_innate_i = np.empty((n_modes, n_innate), dtype=np.float64)
-    for k, mode in enumerate(mode_list_ordered):
-        modes_innate_r[k] = h_modes_full[mode].real
-        modes_innate_i[k] = h_modes_full[mode].imag
-
-    tapered_innate_r, tapered_innate_i = _numba_taper_modes(modes_innate_r, modes_innate_i)
-
-    # 3. Cyclic relative time so merger peak (t=0) is at times_arr[0]:
-    # Ringdown (0 <= tau <= t_post_max) sits at the start of times_arr.
-    # Inspiral (tau < 0) wraps to the end of times_arr.
+    # 3. Envolver cíclicamente e interpolar a times_arr
     t_post_max = float(domain_full[-1]) + 0.01
     t_elapsed = times_arr - times_arr[0]
     times_relative = np.where(t_elapsed <= t_post_max, t_elapsed, t_elapsed - duration_local)
 
-    # Interpolate each tapered mode onto the cyclic grid
-    n_samples = len(times_arr)
-    out_r = np.empty((n_modes, n_samples), dtype=np.float64)
-    out_i = np.empty((n_modes, n_samples), dtype=np.float64)
-    for k in range(n_modes):
-        out_r[k] = np.interp(times_relative, domain_full, tapered_innate_r[k], left=0.0, right=0.0)
-        out_i[k] = np.interp(times_relative, domain_full, tapered_innate_i[k], left=0.0, right=0.0)
+    h_real = np.interp(times_relative, domain_full, tapered_r[0], left=0.0, right=0.0)
+    h_imag = np.interp(times_relative, domain_full, tapered_i[0], left=0.0, right=0.0)
 
-    # 4. Mode sum with spin-weighted spherical harmonics (matching SXS frame)
-    theta_jn = float(out['inclination'])
-    phase = float(out['phi_ref'])
-    phi_eval = float(-phase)
-    ylm_r = np.empty(n_modes)
-    ylm_i = np.empty(n_modes)
-    for k, (l, m) in enumerate(mode_list_ordered):
-        y = _sYlm(-2, l, m, theta_jn, phi_eval)
-        ylm_r[k] = y.real
-        ylm_i[k] = y.imag
-
-    h_real, h_imag = _numba_mode_sum_from_precomputed(out_r, out_i, ylm_r, ylm_i)
-    # In NR convention h = h_+ - i h_x, so h_plus = h_real, h_cross = -h_imag
-    return {"plus": h_real, "cross": -h_imag}
+    # En convención NR/gwsurrogate: h = h_+  -i h_x
+    return {"plus": -h_real, "cross": h_imag}
 
 def make_my_gen_func(dicc):
     """Returns a plain function f(times, **params) as bilby requires."""

@@ -332,7 +332,8 @@ def run_inference(ifos, dicc,targ_keys, priors, outdir,folder):
     plt.ylabel("h strain", fontsize=12)
     plt.savefig(os.path.join(outdir, title + '.jpg' ))
     diference(outdir,label,dicc)
-
+    post = bilby.gw.conversion.generate_all_bbh_parameters(result.posterior)
+    print("chi_eff:", np.median(post["chi_eff"]), np.percentile(post["chi_eff"], [16, 84]))
 
     return result
 

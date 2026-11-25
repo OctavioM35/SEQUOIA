@@ -1,6 +1,6 @@
 import os
 import shutil
-
+import numpy as np
 from config import *
 from sequoiasxs.priors.custom_priors import load_custom_priors
 from sequoiasxs.pipeline.run_inference_bilby  import run_inference
@@ -142,8 +142,7 @@ def process_event(sim,surrogate_model, results):
         
     
         return None
-    
-    except ZeroDivisionError as e:
+    except Exception as e:
 
 
         if (
