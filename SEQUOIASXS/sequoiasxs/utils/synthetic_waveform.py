@@ -73,7 +73,7 @@ def synthetic_waveform(dicc):
     in_plane_2 = float(np.hypot(spin2_ref[0], spin2_ref[1])) if hasattr(spin2_ref, "__getitem__") else 0.0
     if max(in_plane_1, in_plane_2) >= 1e-3:
         raise ValueError(
-            f"{sxs_id} tiene precesión (spin_xy = {max(in_plane_1, in_plane_2):.2e} >= 1e-3). Rechazada."
+            f"{sxs_id} has precession (spin_xy = {max(in_plane_1, in_plane_2):.2e} >= 1e-3). Rejected"
         )
 
     ecc_raw = h.metadata.get("reference_eccentricity", None)
@@ -84,7 +84,7 @@ def synthetic_waveform(dicc):
         ecc_val = np.inf
     if not np.isfinite(ecc_val) or ecc_val > 2e-3:
         raise ValueError(
-            f"{sxs_id} no es cuasi-circular (reference_eccentricity = {ecc_raw}). Rechazada."
+            f"{sxs_id} is not quasi-circular (reference_eccentricity = {ecc_raw}). Rejected."
         )
 
     # Ensure convention m1 >= m2 (q = m2/m1 <= 1) and swap spins accordingly
@@ -445,8 +445,8 @@ def synthetic_waveform(dicc):
     min_overlap = _get_float(dicc, "min_overlap", 0.995)
     if max_overlap < min_overlap:
         raise ValueError(
-            f"Simulación {sxs_id} descartada: Max Overlap = {max_overlap:.6f} < {min_overlap:.4f} "
-            f"(causaría sesgo sistemático en mass_ratio y espines)."
+            f"Simulation {sxs_id} rejected: Max Overlap = {max_overlap:.6f} < {min_overlap:.4f} "
+            f"(would cause systematic bias in mass_ratio and spins)."
         )
 
     # Test 2: Mode-by-mode amplitude & phase consistency at t = -0.02 s
@@ -473,7 +473,7 @@ def synthetic_waveform(dicc):
     plt.xlim(-0.5, 0.06)
     plt.xlabel(r"$t - t_c$ (s)")
     plt.ylabel("Strain")
-    plt.title("Señal SXS proyectada en H1")
+    plt.title("SXS Signal Projected on H1")
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
@@ -487,7 +487,7 @@ def synthetic_waveform(dicc):
     plt.xlim(-0.5, 0.06)
     plt.xlabel(r"$t - t_{\mathrm{merger}}$ (s)")
     plt.ylabel("Strain")
-    plt.title("Polarizaciones de la onda gravitacional (SXS)")
+    plt.title("Polarizations of the gravitational wave (SXS)")
     plt.grid(True, alpha=0.3)
     plt.legend()
     plt.tight_layout()
